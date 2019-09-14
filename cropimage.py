@@ -1,14 +1,9 @@
 from PIL import ImageOps
 from PIL import Image
+from imgpy import Img
 
 #img = "D:\\imgurpythonscript\\testpic2.jpg"
-def cropImage(img):
-    im= Image.open(img)
-    #border=int(input("Enter border size :"))
-    border=20
-    width,height = im.size
-    print(width)
-    print(height)
-    im2= ImageOps.crop(im,200)
-    im2.save("check.jpg")
-    im2.show()
+with Img(fp='giftest.gif') as im:
+    border=30
+    im.crop(box=(border, border, im.width-border, im.height-border))
+    im.save(fp='crop.gif')
