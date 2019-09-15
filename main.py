@@ -12,23 +12,27 @@ import cv2
 import re
 import os
 CLIENT_ID = "82f73b28d4f67da"  # imgur
+secret = "4a08aed2e3d2886bc98d25357ba49e057dbc0b28"
 gyfcatid = "2_ge5Nca"
 gyfcatsecret = "V7idgMVa-xTKKrBAFXGJzBANlFv9xXnIxQTQ7eegui-MUTHIlYmtd0WWU6M-eH1X"
+refresh_token = ""
 
 
 def get_token():
     payload = {
-        'grant_type': 'client_credentials',
+        'grant_type': 'password',
         'client_id': gyfcatid,
-        'client_secret': gyfcatsecret
+        'client_secret': gyfcatsecret,
+        'username': 'balvinderz',
+        'password': 'mani1234'
     }
 
     url = "https://api.gfycat.com/v1/oauth/token"
     r = requests.post(url, json=payload, headers={
                       'User-Agent': "abc down bot"})
-    
+
     response = r.json()
-    
+    print(response)
     access_token = response["access_token"]
     print(access_token)
     return access_token
@@ -38,11 +42,12 @@ def upload(path):
     print("idhar pahucha")
     url = "https://api.gfycat.com/v1/gfycats"
     data = {"noMd5": "true"}
-    headers = {"Authorization": "Bearer " + get_token(),
-               'User-Agent': "xyz down bot", 'Content-Type': 'application/json'}
-    r = requests.post(url=url, headers=headers, json={"noMd5": "true"})
-    # print(r.text)
+   # access_token = get_token()
+    #headers = { 'Authorization': 'Bearer {}'.format(access_token) }
 
+    r = requests.post(url=url, json={"noMd5": "true"})
+    # print(r.text)
+    print(r.text)
     jsondata = json.loads(r.text)
     print(jsondata['gfyname'])
     uploadurl = "https://filedrop.gfycat.com"
@@ -53,34 +58,55 @@ def upload(path):
     file = open(jsondata['gfyname'], 'rb')
     res = requests.put(
         "https://filedrop.gfycat.com/{}".format(jsondata['gfyname']), file)
-    print(res.text)
+    # print(res.text)
     linkpath = "https://gfycat.com/"+gfyid
     # os.remove(jsondata['gfyname'])
     return linkpath
 
 
 def watermarkandcrop(path):
-    cv2video = cv2.VideoCapture(path)
-    height = cv2video.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    width = cv2video.get(cv2.CAP_PROP_FRAME_WIDTH)
-    print(height)
-    print(width)
-    height = int(height)
-    width = int(width)
+    #cv2video = cv2.VideoCapture(path)
+    #height = cv2video.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    #width = cv2video.get(cv2.CAP_PROP_FRAME_WIDTH)
+    # print(height)
+    # print(width)
+    #height = int(height)
+    #width = int(width)
     # border=30
-    global border
-    clip = VideoFileClip(path)
-    new_clip = vfx.crop(clip, x1=border, y1=border,
-                        x2=width-border, y2=height-border)
-    watermark = VideoFileClip("watermark.gif", has_mask=True).loop().set_duration(
-        clip.duration).resize(height=50).margin(right=8, bottom=8, opacity=0).set_pos(("right", "bottom"))
-    watermark_video = CompositeVideoClip([new_clip, watermark])
-    watermarkpath = "watermarkvideo.mp4"
-    print("idhar tak chala")
-    watermark_video.write_videofile(watermarkpath, threads=200)
+    try:
+        global border
+        clip = VideoFileClip(path)
+        height = clip.h
+        width = clip.w
+        new_clip = vfx.crop(clip, x1=border, y1=border,
+                            x2=width-border, y2=height-border)
+        watermark = VideoFileClip("watermark.gif", has_mask=True).loop().set_duration(
+            clip.duration).resize(height=50).margin(right=8, bottom=8, opacity=0).set_pos(("right", "bottom"))
+        watermark_video = CompositeVideoClip([new_clip, watermark])
+        watermarkpath = "watermarkvideo.mp4"
+        print("idhar tak chala")
+        watermark_video.write_videofile(watermarkpath, threads=200)
+    except:
+        watermarkandcrop(path)
+   # clip.reader.close()
+    # clip.audio.reader.close_proc()
+
     clip.close()
-    new_clip.close()
+    del clip
+    # new_clip.reader.close()
+    # new_clip.audio.reader.close_proc()
+    # clip.reader.close()
+
+    # _clip.close()
+   # watermark_video.reader.close()
+    #  watermark_video.audio.reader.close_proc()
+
     watermark_video.close()
+    del watermark_video
+    #del clip
+    new_clip.close()
+    del new_clip
+    #del watermark_video
     return watermarkpath
 
 
@@ -98,6 +124,9 @@ def addwatermarktogif(path):
     final_clip.close()
     gifclip.close()
     logo.close()
+    del final_clip
+    del gifclip
+    del logo
     return watermarkpath
 
 
@@ -114,6 +143,13 @@ def cropgif(path):
 def uploadtoimgur(path):
     #path = "testpic2.jpg"
     im = pyimgur.Imgur(CLIENT_ID)
+    # print(authorization_url)
+    #global refresh_token
+    # if(refresh_token==""):
+    # 3authorization_url = client.get_auth_url('code')
+    # print(authorization_url)
+    # credentials = client.authorize(, 'pin')
+
     uploaded_image = im.upload_image(path)
     print(uploaded_image.link)
     return uploaded_image.link
@@ -122,7 +158,7 @@ def uploadtoimgur(path):
 def addwatermark(path, extension):
     photo = Image.open(path)
     watermark = Image.open('watermark.png')
-    photo.paste(watermark, (photo.width-150, photo.height-75), watermark)
+    photo.paste(watermark, (photo.width-175, photo.height-75), watermark)
     # photo.show()
     photo.save('watermarkedimage.'+extension)
     path = "watermarkedimage."+extension
@@ -235,7 +271,7 @@ def checkvideo(response):
 
 f = open("links.txt", "r")
 outputfile = open("output.txt", "w")
-border = int(input("Enter border"))
+border = int(input("Enter border : "))
 for line in f:
     typeoffile = ''
     # link="https://www.reddit.com/r/toptalent/comments/d2131e/streamer_stumbles_across_a_diamond_in_the_rough/"
@@ -275,12 +311,12 @@ for line in f:
         imgurlink = uploadtoimgur(watermarkpath)
         # os.remove(watermarkpath)
         try:
-            writetext = str(title)+";"+imgurlink+";"+subreddit+"\n"
+            writetext = str(title)+";"+imgurlink+";r/"+subreddit+"\n"
             outputfile.write(writetext)
 
         except:
             writetext = str(title.encode('utf-8'))+";" + \
-                imgurlink+";"+subreddit+"\n"
+                imgurlink+";r/"+subreddit+"\n"
             outputfile.write(writetext)
         continue
     datalink = ""
@@ -300,11 +336,12 @@ for line in f:
         # os.remove(watermarkgifpath)
         print(link)
         try:
-            writetext = str(title)+";"+link+";"+subreddit+"\n"
+            writetext = str(title)+";"+link+";r/"+subreddit+"\n"
             outputfile.write(writetext)
 
         except:
-            writetext = str(title.encode('utf-8'))+";"+link+";"+subreddit+"\n"
+            writetext = str(title.encode('utf-8')) + \
+                ";"+link+";r/"+subreddit+"\n"
             outputfile.write(writetext)
         continue
     datalink = ""
@@ -321,11 +358,12 @@ for line in f:
         link = upload(watermarkpath)
         # os.remove(watermarkpath)
         try:
-            writetext = str(title)+";"+link+";"+subreddit+"\n"
+            writetext = str(title)+";"+link+";r/"+subreddit+"\n"
             outputfile.write(writetext)
 
         except:
-            writetext = str(title.encode('utf-8'))+";"+link+";"+subreddit+"\n"
+            writetext = str(title.encode('utf-8')) + \
+                ";"+link+";r/"+subreddit+"\n"
             outputfile.write(writetext)
 
     # time.sleep(5)
