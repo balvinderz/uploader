@@ -18,28 +18,11 @@ gyfcatsecret = "V7idgMVa-xTKKrBAFXGJzBANlFv9xXnIxQTQ7eegui-MUTHIlYmtd0WWU6M-eH1X
 refresh_token = ""
 
 
-def get_token():
-    payload = {
-        'grant_type': 'password',
-        'client_id': gyfcatid,
-        'client_secret': gyfcatsecret,
-        'username': 'balvinderz',
-        'password': 'mani1234'
-    }
 
-    url = "https://api.gfycat.com/v1/oauth/token"
-    r = requests.post(url, json=payload, headers={
-                      'User-Agent': "abc down bot"})
-
-    response = r.json()
-    print(response)
-    access_token = response["access_token"]
-    print(access_token)
-    return access_token
 
 
 def upload(path):
-    print("idhar pahucha")
+    #print("idhar pahucha")
     url = "https://api.gfycat.com/v1/gfycats"
     data = {"noMd5": "true"}
    # access_token = get_token()
@@ -47,9 +30,9 @@ def upload(path):
 
     r = requests.post(url=url, json={"noMd5": "true"})
     # print(r.text)
-    print(r.text)
+    #print(r.text)
     jsondata = json.loads(r.text)
-    print(jsondata['gfyname'])
+    #print(jsondata['gfyname'])
     uploadurl = "https://filedrop.gfycat.com"
     os.rename(path, jsondata['gfyname'])
     #f={gfyname : open(jsondata['gfyname'],'rb')}
@@ -73,21 +56,18 @@ def watermarkandcrop(path):
     #height = int(height)
     #width = int(width)
     # border=30
-    try:
-        global border
-        clip = VideoFileClip(path)
-        height = clip.h
-        width = clip.w
-        new_clip = vfx.crop(clip, x1=border, y1=border,
-                            x2=width-border, y2=height-border)
-        watermark = VideoFileClip("watermark.gif", has_mask=True).loop().set_duration(
-            clip.duration).resize(height=50).margin(right=8, bottom=8, opacity=0).set_pos(("right", "bottom"))
-        watermark_video = CompositeVideoClip([new_clip, watermark])
-        watermarkpath = "watermarkvideo.mp4"
-        print("idhar tak chala")
-        watermark_video.write_videofile(watermarkpath, threads=200)
-    except:
-        watermarkandcrop(path)
+    global border
+    clip = VideoFileClip(path)
+    height = clip.h
+    width = clip.w
+    new_clip = vfx.crop(clip, x1=border, y1=border,x2=width-border, y2=height-border)
+    watermark = VideoFileClip("watermark.gif", has_mask=True).loop().set_duration(clip.duration).resize(height=50).margin(right=8, bottom=8, opacity=0).set_pos(("right", "bottom"))
+    watermark_video = CompositeVideoClip([new_clip, watermark])
+    watermarkpath = "watermarkvideo.mp4"
+        #print("idhar tak chala")
+    watermark_video.write_videofile(watermarkpath, threads=200)
+    
+    #$    watermarkandcrop(path)
    # clip.reader.close()
     # clip.audio.reader.close_proc()
 
@@ -116,7 +96,7 @@ def addwatermarktogif(path):
             .set_duration(gifclip.duration)
             .set_opacity(0.5)
             .set_position(("right", "bottom")))
-    print("this got executed")
+    #print("this got executed")
 
     final_clip = CompositeVideoClip([gifclip, logo])
     watermarkpath = "watermarkgif.gif"
@@ -172,8 +152,8 @@ def cropImage(img, extension):
     # border=20
     global border
     width, height = im.size
-    print(width)
-    print(height)
+    #print(width)
+    #print(height)
     im2 = ImageOps.crop(im, 50)
     im2.save("cropimage."+extension)
     path = "cropimage."+extension
@@ -248,7 +228,7 @@ def checkgif(response):
         gifurl = jsondata[0]['data']['children'][0]['data']['secure_media']['oembed']['thumbnail_url']
         print("gifurl is ", gifurl)
         if(gifurl.index(".gif")):
-            print("ye execute hua ")
+            #print("ye execute hua ")
             return gifurl
     except:
         # print('error')
