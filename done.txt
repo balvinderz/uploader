@@ -1,0 +1,8 @@
+cropping image,video,gif done
+uploading on imgur done
+extracting links from reddit done
+watermark to image
+watermark to video
+watermark to gyf
+Remaining
+download video fully

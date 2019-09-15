@@ -11,5 +11,5 @@ height=int(height)
 width=int(width)
 border=30
 clip= VideoFileClip("test.mp4")
-new_clip= vfx.crop(clip,x1=border,y1=border,x2=width-border,y2=height-border)
-new_clip.write_videofile("cropped.mp4",audio=True,threads=100)
+#new_clip= vfx.crop(clip,x1=border,y1=border,x2=width-border,y2=height-border)
+#new_clip.write_videofile("cropped.mp4",audio=True,threads=100,codec = 'libx264')

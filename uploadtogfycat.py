@@ -1,8 +1,21 @@
 from gfycat.client import GfycatClient
+import requests
+import os
+import json
+#client = GfycatClient(CLIENT_ID,secret)
+#info =client.upload_from_file('tenor.gif')
+#print(info)
+url="https://api.gfycat.com/v1/gfycats"
+data={"noMd5" : "true"}
+r=requests.post(url=url,json={"noMd5" : "true"})
+#print(r.text)
 
-CLIENT_ID="2_ge5Nca"
-secret="V7idgMVa-xTKKrBAFXGJzBANlFv9xXnIxQTQ7eegui-MUTHIlYmtd0WWU6M-eH1X"
+jsondata =json.loads(r.text)
+print(jsondata['gfyname'])
+uploadurl ="https://filedrop.gfycat.com"
+os.rename("tenor.gif",jsondata['gfyname'])
+#f={gfyname : open(jsondata['gfyname'],'rb')}
+file= open(jsondata['gfyname'],'rb')
+res=requests.put("https://filedrop.gfycat.com/{}".format(jsondata['gfyname']), file)
+print(res.text)
 
-client = GfycatClient(CLIENT_ID,secret)
-info =client.upload_from_file('tenor.gif')
-print(info)
